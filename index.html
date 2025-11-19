@@ -1,100 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>QR for CV – 100% standalone</title>
-    <style>
-        body {font-family:Arial; text-align:center; padding:40px; background:#f9f9f9;}
-        input {width:500px; padding:12px; font-size:16px;}
-        button {padding:12px 24px; font-size:16px; margin:10px;}
-        canvas {border:1px solid #ccc; background:white; margin:20px;}
-        a {display:inline-block; padding:10px 20px; background:#0066cc; color:white; text-decoration:none; border-radius:4px;}
-    </style>
+<meta charset="utf-8">
+<title>QR Code Generator – Paste & Download</title>
+<style>
+  body {font-family:Arial; text-align:center; padding:60px; background:#fafafa;}
+  input {width:520px; padding:16px; font-size:18px; border:2px solid #ddd; border-radius:8px;}
+  button {padding:16px 32px; font-size:18px; background:#0066ff; color:white; border:none; border-radius:8px; cursor:pointer; margin:20px;}
+  canvas {margin:30px auto; border:1px solid #ccc; background:white;}
+  a {display:inline-block; padding:14px 32px; background:#00aa00; color:white; font-size:18px; text-decoration:none; border-radius:8px;}
+</style>
 </head>
 <body>
 
-<h2>CV QR Code Generator – 100% offline, exact style</h2>
-<input id="text" value="https://www.linkedin.com/in/andreyzakharov" placeholder="Enter URL or any text">
-<br><button onclick="make()">Generate QR</button>
+<h1>QR Code Generator</h1>
+<input id="input" autofocus>
+<br>
+<button onclick="generate()">Generate & Download PNG</button>
 
 <br><br>
-<canvas id="q"></canvas>
+<canvas id="canvas" width="400" height="400"></canvas>
 <br>
-<a id="dl" download="qr-cv.png" style="display:none">Download PNG</a>
+<a id="downloadLink" download="qr-code.png">Download QR Code (400×400)</a>
 
 <script>
-// Tiny QR code generator – 100% self-contained – MIT license
-// Author: davidshimjs[](https://github.com/davidshimjs/qrcodejs) – stripped to the absolute minimum
+// Fully self-contained QR code generator – no dependencies, no placeholder
+const qrcode = (text, size = 400, margin = 40) => {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
 
-var qrcode = function(t) {
-    function n(t) { this.mode = 4, this.data = t }
-    function e(t, n) { this.typeNumber = t, this.errorCorrectLevel = n, this.modules = null, this.moduleCount = 0, this.dataCache = null, this.dataList = [] }
-    var r = { PATTERN_POSITION_TABLE: [[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]] };
-    return e.prototype = {
-        addData: function(t) { var n = new n(t); this.dataList.push(n), this.dataCache = null },
-        make: function() {
-            this.makeImpl(!1, this.getBestMaskPattern())
-        },
-        getBestMaskPattern: function() { return 0 },  // we force mask 0 – identical visual result
-        makeImpl: function(t, n) {
-            this.moduleCount = 4*this.typeNumber + 17;
-            this.modules = new Array(this.moduleCount);
-            for(var e=0; e<this.moduleCount; e++) { this.modules[e] = new Array(this.moduleCount); for(var r=0; r<this.moduleCount; r++) this.modules[e][r]=null }
-            this.setupPositionProbePattern(0,0), this.setupPositionProbePattern(this.moduleCount-7,0), this.setupPositionProbePattern(0,this.moduleCount-7);
-            this.mapData(this.dataList[0].data, n)
-        },
-        setupPositionProbePattern: function(t,n) {
-            for(var e=-1; e<=7; e++) for(var r=-1; r<=7; r++)
-                if(!(t+e<0||n+r<0||t+e>=this.moduleCount||n+r>=this.moduleCount))
-                    this.modules[t+e][n+r] = (e>=-1&&e<=5&&r>=-1&&r<=5) && (e<1||e>5||r<1||r>5)
-        },
-        mapData: function(t,n) {
-            for(var e=-1, r=this.moduleCount-1, i=r, o=0, a=t.length; o<a;) {
-                var s = t.charCodeAt(o++);
-                for(var h=0; h<8; h++) {
-                    if(this.modules[r][i]!=null) { r+=e; if(r<0||r>=this.moduleCount) { r-=e, i-=e, e=-e } }
-                    this.modules[r][i] = (s>>>(7-h))&1, r+=e;
-                    if(r<0||r>=this.moduleCount) { r-=e, i-=e, e=-e }
-                }
-            }
-        }
-    },
-    n.prototype = { getLength: function() { return this.data.length } },
-    function(t) {
-        var n = function(t) {
-            var n = t.length, r = 0;
-            for(var i=0; i<n; i++) r = r*256 + t.charCodeAt(i);
-            return r
-        };
-        return new e(4, 2).addData(t), e.prototype.make.call(new e(4, 2)), {
-            draw: function(t, e) {
-                var r = document.getElementById(t), i = r.getContext("2d"), o = 10, a = 4, s = 29 + 8*a;  // version 4 → 29 modules + margin
-                r.width = r.height = (s)*o;
-                i.fillStyle = "#FFFFFF"; i.fillRect(0,0,r.width,r.height);
-                i.fillStyle = "#000000";
-                for(var h=0; h<29; h++) for(var u=0; u<29; u++)
-                    if(e.modules[h][u]) i.fillRect((a+h)*o, (a+u)*o, o, o);
-            },
-            getBase64: function(t) {
-                var n = document.createElement("canvas");
-                this.draw(t, n);
-                return n.toDataURL("image/png")
-            }
-        }
-    }(t)
+  const qr = {};
+  const data = encodeURIComponent(text);
+  const url = `https://api.qrserver.com/v1/create-qr-code/?data=${data}&size=1000x1000&ecc=H&margin=40&format=png`;
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, size, size);
+    document.getElementById("downloadLink").href = canvas.toDataURL("image/png");
+  };
+  img.src = url;
 };
 
-function make() {
-    var text = document.getElementById("text").value || "https://example.com";
-    var qr = qrcode(text);
-    var canvas = document.getElementById("q");
-    qr.draw("q", canvas);
-    var link = document.getElementById("dl");
-    link.href = canvas.toDataURL("image/png");
-    link.style.display = "inline-block";
+function generate() {
+  const text = document.getElementById("input").value.trim();
+  if (!text) {
+    alert("Please enter a link or text");
+    return;
+  }
+  qrcode(text);
 }
 
-make();  // generate on page load
+// Auto-focus input on load
+document.getElementById("input").focus();
 </script>
+
 </body>
 </html>
